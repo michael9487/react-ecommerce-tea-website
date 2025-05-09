@@ -2,7 +2,7 @@
   "name": "ecommerce-tea-website",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://michael9487.github.io/react-ecommerce-tea-website",
+  "homepage": ".",
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
