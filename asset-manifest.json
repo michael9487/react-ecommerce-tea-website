@@ -1,21 +1,21 @@
 {
   "files": {
-    "main.css": "/react-ecommerce-tea-website/static/css/main.def7c941.css",
-    "main.js": "/react-ecommerce-tea-website/static/js/main.967df86c.js",
-    "static/js/453.64f5c975.chunk.js": "/react-ecommerce-tea-website/static/js/453.64f5c975.chunk.js",
-    "static/media/banner2.jpg": "/react-ecommerce-tea-website/static/media/banner2.71802e668bd998f1b055.jpg",
-    "static/media/home-tea-right-image-left-text.jpg": "/react-ecommerce-tea-website/static/media/home-tea-right-image-left-text.b91403c2c69695aea3d3.jpg",
-    "static/media/home-tea-left-image-right-text.jpg": "/react-ecommerce-tea-website/static/media/home-tea-left-image-right-text.03793f687d74ecd0b3ca.jpg",
-    "static/media/banner3.jpg": "/react-ecommerce-tea-website/static/media/banner3.e4a2cbf82f2cd28d5160.jpg",
-    "static/media/banner1.jpg": "/react-ecommerce-tea-website/static/media/banner1.4c506e405507724a01c5.jpg",
-    "static/media/parallax.jpg": "/react-ecommerce-tea-website/static/media/parallax.5ff758919f4e73bd3df9.jpg",
-    "index.html": "/react-ecommerce-tea-website/index.html",
-    "main.def7c941.css.map": "/react-ecommerce-tea-website/static/css/main.def7c941.css.map",
-    "main.967df86c.js.map": "/react-ecommerce-tea-website/static/js/main.967df86c.js.map",
-    "453.64f5c975.chunk.js.map": "/react-ecommerce-tea-website/static/js/453.64f5c975.chunk.js.map"
+    "main.css": "./static/css/main.def7c941.css",
+    "main.js": "./static/js/main.d532e9cd.js",
+    "static/js/453.64f5c975.chunk.js": "./static/js/453.64f5c975.chunk.js",
+    "static/media/banner2.jpg": "./static/media/banner2.71802e668bd998f1b055.jpg",
+    "static/media/home-tea-right-image-left-text.jpg": "./static/media/home-tea-right-image-left-text.b91403c2c69695aea3d3.jpg",
+    "static/media/home-tea-left-image-right-text.jpg": "./static/media/home-tea-left-image-right-text.03793f687d74ecd0b3ca.jpg",
+    "static/media/banner3.jpg": "./static/media/banner3.e4a2cbf82f2cd28d5160.jpg",
+    "static/media/banner1.jpg": "./static/media/banner1.4c506e405507724a01c5.jpg",
+    "static/media/parallax.jpg": "./static/media/parallax.5ff758919f4e73bd3df9.jpg",
+    "index.html": "./index.html",
+    "main.def7c941.css.map": "./static/css/main.def7c941.css.map",
+    "main.d532e9cd.js.map": "./static/js/main.d532e9cd.js.map",
+    "453.64f5c975.chunk.js.map": "./static/js/453.64f5c975.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.def7c941.css",
-    "static/js/main.967df86c.js"
+    "static/js/main.d532e9cd.js"
   ]
 }
