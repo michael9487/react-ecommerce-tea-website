@@ -27,10 +27,10 @@ const slides = [
   },
   {
     img: banner3,
-    title: "會員專屬禮遇",
-    description: "加入會員，享受更多專屬福利。",
-    buttonText: "加入會員",
-    buttonLink: "/products",
+    title: "交通便利可預約",
+    description: "鄰近捷運站，可先致電不用等",
+    buttonText: "來電預約",
+    buttonLink: "/contact-us",
   },
 ];
 
