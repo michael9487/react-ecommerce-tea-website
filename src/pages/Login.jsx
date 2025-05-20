@@ -49,7 +49,7 @@ export default function LoginPage() {
           // 儲存 token（可用 localStorage 或 sessionStorage）
           localStorage.setItem("admin_token", res.data.token);
           setIsLoggedIn(true);
-          // 導向後台首頁
+          // 導向後台的首頁
           navigate("/admin");
         } else {
           setApiError(res.data.message || "登入失敗");
