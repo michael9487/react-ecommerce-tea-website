@@ -93,6 +93,7 @@ function Carousel() {
                     backgroundSize: "cover",
                     backgroundPosition: "center",
                     backgroundRepeat: "no-repeat",
+                    backgroundColor: "#f5f5f5",
                   }}
                 >
                   {/*文字遮罩 */}

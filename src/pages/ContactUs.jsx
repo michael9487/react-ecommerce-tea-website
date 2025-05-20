@@ -149,7 +149,7 @@ export default function ContactUs() {
                   rules={{
                     required: "請輸入電話",
                     pattern: {
-                      value: /^((09[1-9]\d{7})|(0[2-8]\d{1,2}[-\s]?\d{6,8}))$/,
+                      value: /^((09[0-9]{8})|(0[2-8]{1}[0-9]{7}))$/,
                       message: "電話格式不正確",
                     },
                   }}
@@ -173,8 +173,7 @@ export default function ContactUs() {
                   rules={{
                     required: "請輸入信箱",
                     pattern: {
-                      value:
-                        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/,
+                      value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
                       message: "信箱格式不正確",
                     },
                   }}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   AppBar,
@@ -11,27 +11,74 @@ import {
   ListItemButton,
   ListItemText,
   Typography,
+  Badge,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import Grid2 from "@mui/material/Grid2"; //新版改Gridv2
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import MenuIcon from "@mui/icons-material/Menu";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import CartModal from "./components/CartModal";
+import { Outlet } from "react-router-dom";
+import { deleteCartItem } from "./api/CustomerAPI";
+import { getCart } from "./api/CustomerAPI";
 
 const navItems = [
   { text: "產品", to: "/products" },
   { text: "關於我們", to: "/about-us" },
   { text: "聯絡我們", to: "/contact-us" },
-  { text: "Login", to: "/login" },
 ];
+
 const Layout = ({ children }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [cartItems, setCartItems] = useState([]);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const cartCount = cartItems.length;
 
   const toggleDrawer = (open) => () => {
     setDrawerOpen(open);
+  };
+
+  // 初始載入時取得購物車資料
+  useEffect(() => {
+    fetchCart();
+  }, []);
+  // 開啟購物車 Modal 時取得購物車資料
+  useEffect(() => {
+    if (cartOpen) {
+      fetchCart();
+    }
+  }, [cartOpen]);
+
+  const fetchCart = async () => {
+    const res = await getCart();
+    if (res.success) {
+      setCartItems(res.carts);
+      setTotalPrice(res.final_total);
+    } else {
+      setCartItems([]); // 預防錯誤狀況
+      setTotalPrice(0);
+    }
+  };
+
+  const handleCheckout = () => {
+    // 導向結帳頁面，依專案路由調整
+    window.location.href = "/checkout";
+  };
+
+  //刪除購物車產品
+  const handleRemoveItem = async (id) => {
+    const result = await deleteCartItem(id);
+    if (result.success) {
+      await fetchCart(); // 刪除成功後直接重新撈購物車
+    } else {
+      alert(result.message);
+    }
   };
 
   return (
@@ -82,6 +129,7 @@ const Layout = ({ children }) => {
               >
                 {isMobile ? (
                   <>
+                    {/* 手機版：只顯示漢堡選單按鈕和購物車按鈕 */}
                     <IconButton
                       color="inherit"
                       onClick={toggleDrawer(true)}
@@ -92,14 +140,13 @@ const Layout = ({ children }) => {
                     >
                       <MenuIcon />
                     </IconButton>
-
                     <Drawer
                       anchor="right"
                       open={drawerOpen}
                       onClose={toggleDrawer(false)}
                       PaperProps={{
                         sx: {
-                          width: "100%", // 滿版寬度
+                          width: "100%",
                         },
                       }}
                     >
@@ -108,6 +155,7 @@ const Layout = ({ children }) => {
                           width: "100%",
                           bgcolor: "#8B4513",
                           height: "100%",
+                          paddingTop: 3,
                         }}
                         role="presentation"
                         onClick={toggleDrawer(false)}
@@ -130,17 +178,83 @@ const Layout = ({ children }) => {
                               </ListItemButton>
                             </ListItem>
                           ))}
+                          {/* Drawer 內的登入/登出按鈕 */}
+                          <ListItem disablePadding>
+                            <ListItemButton
+                              component={Link}
+                              to="/login"
+                              onClick={() => setDrawerOpen(false)}
+                              sx={{
+                                color: "#fff",
+                                textTransform: "none",
+                                fontSize: "1.2rem",
+                                textAlign: "center",
+                              }}
+                            >
+                              <ListItemText primary="登入" />
+                            </ListItemButton>
+                          </ListItem>
+                          <ListItem>
+                            <ListItemButton
+                              onClick={() => setCartOpen(true)}
+                              sx={{
+                                justifyContent: "center", // 水平置中內容
+                              }}
+                            >
+                              {/* 手機版購物車按鈕 */}
+                              <IconButton
+                                color="inherit"
+                                size="large"
+                                aria-label="open shopping cart"
+                                sx={{
+                                  ml: 1,
+                                  padding: 1.5,
+                                }}
+                              >
+                                <Badge
+                                  badgeContent={cartCount}
+                                  color="error"
+                                  max={99}
+                                >
+                                  <ShoppingCartIcon />
+                                </Badge>
+                              </IconButton>
+                            </ListItemButton>
+                          </ListItem>
                         </List>
                       </Box>
                     </Drawer>
                   </>
                 ) : (
-                  navItems.map(({ text, to }) => (
+                  <>
+                    {/* 桌面版 navItems */}
+                    {navItems.map(({ text, to }) => (
+                      <Button
+                        key={text}
+                        color="inherit"
+                        component={Link}
+                        to={to}
+                        sx={{
+                          backgroundColor: "#8B4513",
+                          padding: "8px 16px",
+                          color: "#FFFFFF",
+                          textTransform: "none",
+                          "&:hover": {
+                            transform: "none",
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+                            textDecoration: "none",
+                            cursor: "pointer",
+                          },
+                        }}
+                      >
+                        {text}
+                      </Button>
+                    ))}
+                    {/* 桌面版登入/登出按鈕 */}
                     <Button
-                      key={text}
                       color="inherit"
                       component={Link}
-                      to={to}
+                      to="/login"
                       sx={{
                         backgroundColor: "#8B4513",
                         padding: "8px 16px",
@@ -154,9 +268,21 @@ const Layout = ({ children }) => {
                         },
                       }}
                     >
-                      {text}
+                      登入
                     </Button>
-                  ))
+                    {/* 桌面版購物車按鈕 */}
+                    <IconButton
+                      color="inherit"
+                      onClick={() => setCartOpen(true)}
+                      size="large"
+                      aria-label="open shopping cart"
+                      sx={{ ml: 1 }}
+                    >
+                      <Badge badgeContent={cartCount} color="error" max={99}>
+                        <ShoppingCartIcon />
+                      </Badge>
+                    </IconButton>
+                  </>
                 )}
               </Grid2>
             </Grid2>
@@ -165,7 +291,14 @@ const Layout = ({ children }) => {
 
         {/* 主內容 */}
         <Box component="main" sx={{ flexGrow: 1, paddingTop: "64px" }}>
-          {children}
+          <Outlet
+            context={{
+              cartItems,
+              totalPrice,
+              onRemoveItem: handleRemoveItem,
+              fetchCart,
+            }}
+          />
         </Box>
 
         {/* Footer */}
@@ -178,6 +311,16 @@ const Layout = ({ children }) => {
           </Typography>
         </Box>
       </Box>
+
+      {/* 購物車 Modal */}
+      <CartModal
+        open={cartOpen}
+        onClose={() => setCartOpen(false)}
+        cartItems={cartItems}
+        totalPrice={totalPrice}
+        onRemoveItem={handleRemoveItem}
+        onCheckout={handleCheckout}
+      />
     </>
   );
 };

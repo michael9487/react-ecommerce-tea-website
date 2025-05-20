@@ -10,11 +10,18 @@ import {
 } from "@mui/material";
 import Grid2 from "@mui/material/Grid2";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { useNavigate } from "react-router-dom"; // 用於導向
+import { signin } from "../api/AuthAPI";
+import { useAuth } from "../context/AuthContext";
 
 export default function LoginPage() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [errors, setErrors] = React.useState({ email: "", password: "" });
+  const [loading, setLoading] = React.useState(false);
+  const [apiError, setApiError] = React.useState(""); // 新增 API 錯誤訊息
+  const navigate = useNavigate();
+  const { setIsLoggedIn } = useAuth();
 
   const validate = () => {
     let tempErrors = { email: "", password: "" };
@@ -31,16 +38,36 @@ export default function LoginPage() {
     return Object.values(tempErrors).every((x) => x === "");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setApiError("");
     if (validate()) {
-      // 這裡可接後端登入API
-      alert(`登入成功\nEmail: ${email}\n密碼: ${password}`);
+      setLoading(true);
+      try {
+        const res = await signin(email, password);
+        if (res.data.success) {
+          // 儲存 token（可用 localStorage 或 sessionStorage）
+          localStorage.setItem("admin_token", res.data.token);
+          setIsLoggedIn(true);
+          // 導向後台首頁
+          navigate("/admin");
+        } else {
+          setApiError(res.data.message || "登入失敗");
+        }
+      } catch (err) {
+        setApiError("伺服器錯誤，請稍後再試");
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
   return (
-    <>
+    <Box
+      sx={{
+        backgroundColor: "#C0C0C0",
+      }}
+    >
       <Container maxWidth="sm" sx={{ height: "100vh" }}>
         <Grid2
           container
@@ -99,18 +126,24 @@ export default function LoginPage() {
                 error={Boolean(errors.password)}
                 helperText={errors.password}
               />
+              {apiError && (
+                <Typography color="error" sx={{ mt: 1 }}>
+                  {apiError}
+                </Typography>
+              )}
               <Button
                 type="submit"
                 fullWidth
                 variant="contained"
                 sx={{ mt: 3, mb: 2, py: 1.5, fontWeight: "bold" }}
+                disabled={loading}
               >
-                登入
+                {loading ? "登入中..." : "登入"}
               </Button>
             </Box>
           </Grid2>
         </Grid2>
       </Container>
-    </>
+    </Box>
   );
 }

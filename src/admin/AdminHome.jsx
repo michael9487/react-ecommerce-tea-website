@@ -1,10 +1,14 @@
 import React from "react";
+import { Box } from "@mui/material";
 
 function AdminHome() {
   return (
-    <div>
-      <h2>後台首頁</h2>
-    </div>
+    <Box
+      sx={{
+        backgroundColor: "primary",
+        p: 4,
+      }}
+    ></Box>
   );
 }
 

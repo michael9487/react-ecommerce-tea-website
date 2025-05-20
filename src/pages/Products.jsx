@@ -12,26 +12,48 @@ import {
   Skeleton,
   Button,
   Divider,
+  Snackbar,
 } from "@mui/material";
-import Grid2 from "@mui/material/Grid2"; // MUI 6 正式 Grid2
+import Grid2 from "@mui/material/Grid2";
+import ProductModal from "../components/ProductModal";
+import { addToCart } from "../api/CustomerAPI";
+import { useOutletContext } from "react-router-dom";
 
 const apiPath = "https://vue-course-api.hexschool.io";
 const customPath = "supercurry";
 
-const ProductList = () => {
+const Products = () => {
+  const { fetchCart } = useOutletContext();
   const [products, setProducts] = useState([]);
   const [pagination, setPagination] = useState({});
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [open, setOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
-  /*撈資料*/
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+
+  const showSnackbar = (message, severity = "success") => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar((prev) => ({ ...prev, open: false }));
+  };
+
   const fetchProducts = async (currentPage) => {
     setLoading(true);
     setError("");
 
     try {
-      const res = await axios.get(`${apiPath}/api/${customPath}/products`);
+      const res = await axios.get(
+        `${apiPath}/api/${customPath}/products?page=${currentPage}`
+      );
       if (res.data.success) {
         setProducts(res.data.products);
         setPagination(res.data.pagination);
@@ -49,7 +71,22 @@ const ProductList = () => {
     fetchProducts(page);
   }, [page]);
 
-  /* skeleton骨架屏 */
+  const handleAddToCart = async (product, quantity) => {
+    if (!quantity || quantity <= 0) {
+      showSnackbar("請選擇購買數量", "warning");
+      return;
+    }
+
+    const result = await addToCart(product.id, quantity);
+
+    if (result.success) {
+      showSnackbar(result.message || "已加入購物車");
+      fetchCart();
+    } else {
+      showSnackbar(result.message || "加入購物車失敗", "error");
+    }
+  };
+
   const renderSkeletonCards = () => (
     <Grid2 container spacing={2}>
       {[...Array(6)].map((_, i) => (
@@ -65,14 +102,14 @@ const ProductList = () => {
             <Skeleton
               variant="rectangular"
               animation="wave"
-              sx={{ height: 200, borderRadius: 2, mb: 2, width: "100%" }}
+              sx={{ height: 200, borderRadius: 2, mb: 2 }}
             />
-            <CardContent sx={{ flexGrow: 1 }}>
-              <Typography variant="h6" gutterBottom>
-                <Skeleton width="80%" height={24} animation="wave" />
+            <CardContent>
+              <Typography variant="h6">
+                <Skeleton width="80%" />
               </Typography>
-              <Typography color="text.secondary" fontWeight="bold">
-                <Skeleton width="60%" height={20} animation="wave" />
+              <Typography>
+                <Skeleton width="60%" />
               </Typography>
             </CardContent>
           </Card>
@@ -92,11 +129,10 @@ const ProductList = () => {
           </Alert>
         ) : (
           <>
-            {/* 產品卡片 */}
             <Grid2 container spacing={3}>
               {products.map((product) => (
                 <Grid2 size={{ xs: 12, sm: 6, md: 4 }} key={product.id}>
-                  <Card sx={{ height: "100%" }}>
+                  <Card>
                     <CardMedia
                       component="img"
                       height="200"
@@ -107,11 +143,7 @@ const ProductList = () => {
                       alt={product.title}
                     />
                     <CardContent
-                      sx={{
-                        flexGrow: 1,
-                        display: "flex",
-                        flexDirection: "column",
-                      }}
+                      sx={{ display: "flex", flexDirection: "column" }}
                     >
                       <Grid2
                         container
@@ -119,79 +151,60 @@ const ProductList = () => {
                         alignItems="center"
                         sx={{ mb: 1 }}
                       >
-                        <Grid2>
-                          <Typography variant="h6" noWrap>
-                            {product.title}
-                          </Typography>
-                        </Grid2>
-                        <Grid2>
-                          <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            noWrap
-                            sx={{
-                              backgroundColor: "#e0e0e0",
-                              border: "1px solid #bdbdbd",
-                              borderRadius: 1,
-                              px: 1,
-                              py: 0.3,
-                              fontSize: "0.75rem",
-                              fontWeight: "medium",
-                              color: "text.secondary",
-                              display: "inline-block",
-                              maxWidth: 120,
-                              textAlign: "center",
-                            }}
-                          >
-                            {product.category}
-                          </Typography>
-                        </Grid2>
+                        <Typography variant="h6" noWrap>
+                          {product.title}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            backgroundColor: "#e0e0e0",
+                            borderRadius: 1,
+                            px: 1,
+                            fontSize: "0.75rem",
+                          }}
+                        >
+                          {product.category}
+                        </Typography>
                       </Grid2>
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ mb: 1, flexGrow: 1 }}
-                      >
+                      <Typography variant="body2" sx={{ mb: 1, flexGrow: 1 }}>
                         {product.content}
                       </Typography>
                       <Grid2
                         container
                         justifyContent="space-between"
-                        alignItems="center"
                         sx={{ mb: 1 }}
                       >
-                        <Grid2>
-                          <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            sx={{ textDecoration: "line-through" }}
-                          >
-                            NT$ {product.origin_price}
-                          </Typography>
-                        </Grid2>
-                        <Grid2>
-                          <Typography
-                            variant="body1"
-                            color="error"
-                            fontWeight="bold"
-                          >
-                            NT$ {product.price}
-                          </Typography>
-                        </Grid2>
+                        <Typography
+                          variant="body2"
+                          sx={{ textDecoration: "line-through" }}
+                        >
+                          NT$ {product.origin_price}
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          color="error"
+                          fontWeight="bold"
+                        >
+                          NT$ {product.price}
+                        </Typography>
                       </Grid2>
-                      <Divider sx={{ my: 1, bgcolor: "grey.300" }} />
-                      <Grid2
-                        container
-                        justifyContent="space-between"
-                        alignItems="center"
-                      >
-                        <Button size="small" variant="text" color="primary">
+                      <Divider sx={{ my: 1 }} />
+                      <Grid2 container justifyContent="space-between">
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          onClick={() => {
+                            setSelectedProduct(product);
+                            setOpen(true);
+                          }}
+                        >
                           查看更多
                         </Button>
                         <Button
                           size="small"
                           variant="contained"
-                          color="primary"
+                          color="secondary"
+                          onClick={() => handleAddToCart(product, 1)}
                         >
                           加入購物車
                         </Button>
@@ -201,7 +214,7 @@ const ProductList = () => {
                 </Grid2>
               ))}
             </Grid2>
-            {/* 分頁標籤 */}
+
             <Grid2 container justifyContent="center" sx={{ mt: 4 }}>
               <Pagination
                 count={pagination.total_pages || 1}
@@ -210,11 +223,26 @@ const ProductList = () => {
                 color="primary"
               />
             </Grid2>
+
+            <ProductModal
+              open={open}
+              onClose={() => setOpen(false)}
+              product={selectedProduct}
+              onAddToCart={handleAddToCart}
+            />
           </>
         )}
+
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={3000}
+          onClose={handleCloseSnackbar}
+          message={snackbar.message}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        />
       </Container>
     </Box>
   );
 };
 
-export default ProductList;
+export default Products;
