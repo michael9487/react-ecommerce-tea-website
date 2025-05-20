@@ -76,9 +76,7 @@ export default function LoginPage() {
           sx={{ height: "100%" }}
         >
           <Grid2
-            xs={12}
-            sm={8}
-            md={6}
+            size={{ xs: 12 }}
             component={Paper}
             elevation={6}
             square
