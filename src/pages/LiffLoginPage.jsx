@@ -32,9 +32,10 @@ const LiffLoginPage = () => {
       setLineProfile(profile);
 
       // 呼叫後端 API 驗證 idToken
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/verify`, {
-        idToken,
-      });
+      const res = await axios.post(
+        `${process.env.REACT_APP_API_URL}/liff-login`,
+        { idToken }
+      );
 
       setAppToken(res.data.token);
       localStorage.setItem("app_token", res.data.token); // 儲存你的網站用的 JWT
