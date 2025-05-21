@@ -42,6 +42,7 @@ const MemberPage = () => {
         textAlign="center"
         width={{ xs: "90%", sm: "70%", md: "50%" }} // 響應式寬度
         maxWidth={800} // 最大寬度
+        height={{ xs: 300, sm: 400, md: 500 }}
       >
         <Typography variant="h4" gutterBottom>
           會員中心

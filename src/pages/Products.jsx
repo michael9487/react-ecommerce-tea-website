@@ -168,15 +168,17 @@ const Products = () => {
 
   useEffect(() => {
     const hash = window.location.hash;
-    if (hash && hash.startsWith("#product-")) {
+    if (products.length > 0 && hash.startsWith("#product-")) {
       setTimeout(() => {
         const el = document.querySelector(hash);
         if (el) {
           el.scrollIntoView({ behavior: "smooth", block: "start" });
+          // 清除 hash，避免重複滾動
+          window.history.replaceState(null, "", window.location.pathname);
         }
-      }, 300);
+      }, 100);
     }
-  }, []);
+  }, [products]);
 
   return (
     <Box sx={{ backgroundColor: "#C0C0C0" }}>
