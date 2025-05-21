@@ -39,6 +39,7 @@ const Layout = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const cartCount = cartItems.length;
+  const [isCustomerLoggedIn, setIsCustomerLoggedIn] = useState(false);
 
   const toggleDrawer = (open) => () => {
     setDrawerOpen(open);
@@ -54,6 +55,11 @@ const Layout = ({ children }) => {
       fetchCart();
     }
   }, [cartOpen]);
+  //檢查登入狀態
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsCustomerLoggedIn(!!token);
+  }, []);
 
   const fetchCart = async () => {
     const res = await getCart();
@@ -79,6 +85,12 @@ const Layout = ({ children }) => {
     } else {
       alert(result.message);
     }
+  };
+  //登出
+  const handleCustomerLogout = () => {
+    localStorage.removeItem("token");
+    setIsCustomerLoggedIn(false);
+    window.location.href = "/";
   };
 
   return (
@@ -194,6 +206,36 @@ const Layout = ({ children }) => {
                               <ListItemText primary="登入" />
                             </ListItemButton>
                           </ListItem>
+                          {/* 手機版前台會員登入/登出按鈕 */}
+                          <ListItem disablePadding>
+                            {isCustomerLoggedIn ? (
+                              <ListItemButton
+                                onClick={handleCustomerLogout}
+                                sx={{
+                                  color: "#fff",
+                                  textTransform: "none",
+                                  fontSize: "1.2rem",
+                                  textAlign: "center",
+                                }}
+                              >
+                                <ListItemText primary="登出" />
+                              </ListItemButton>
+                            ) : (
+                              <ListItemButton
+                                component={Link}
+                                to="/liff-login"
+                                onClick={() => setDrawerOpen(false)}
+                                sx={{
+                                  color: "#fff",
+                                  textTransform: "none",
+                                  fontSize: "1.2rem",
+                                  textAlign: "center",
+                                }}
+                              >
+                                <ListItemText primary="會員登入" />
+                              </ListItemButton>
+                            )}
+                          </ListItem>
                           <ListItem>
                             <ListItemButton
                               onClick={() => setCartOpen(true)}
@@ -270,6 +312,47 @@ const Layout = ({ children }) => {
                     >
                       登入
                     </Button>
+                    {/* 桌面版前台會員登入/登出按鈕 */}
+                    {isCustomerLoggedIn ? (
+                      <Button
+                        color="inherit"
+                        onClick={handleCustomerLogout}
+                        sx={{
+                          backgroundColor: "#8B4513",
+                          padding: "8px 16px",
+                          color: "#FFFFFF",
+                          textTransform: "none",
+                          "&:hover": {
+                            transform: "none",
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+                            textDecoration: "none",
+                            cursor: "pointer",
+                          },
+                        }}
+                      >
+                        登出
+                      </Button>
+                    ) : (
+                      <Button
+                        color="inherit"
+                        component={Link}
+                        to="/liff-login"
+                        sx={{
+                          backgroundColor: "#8B4513",
+                          padding: "8px 16px",
+                          color: "#FFFFFF",
+                          textTransform: "none",
+                          "&:hover": {
+                            transform: "none",
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+                            textDecoration: "none",
+                            cursor: "pointer",
+                          },
+                        }}
+                      >
+                        會員登入
+                      </Button>
+                    )}
                     {/* 桌面版購物車按鈕 */}
                     <IconButton
                       color="inherit"
