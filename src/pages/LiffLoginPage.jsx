@@ -2,9 +2,11 @@ import { useEffect } from "react";
 import liff from "@line/liff";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const LiffLoginPage = () => {
   const navigate = useNavigate();
+  const { setIsCustomerLoggedIn } = useAuth();
 
   useEffect(() => {
     const loginWithLine = async () => {
@@ -30,6 +32,7 @@ const LiffLoginPage = () => {
         );
 
         localStorage.setItem("app_token", res.data.token);
+        setIsCustomerLoggedIn(true);
         console.log("登入成功", res.data);
         navigate("/member");
       } catch (error) {
