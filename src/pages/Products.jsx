@@ -124,6 +124,9 @@ const Products = () => {
   const handleShareProduct = useCallback(
     async (productId, productTitle) => {
       const appToken = localStorage.getItem("app_token");
+      if (!window.liff) {
+        console.log("LIFF 尚未初始化");
+      }
 
       if (!window.liff || !window.liff.isLoggedIn() || !appToken) {
         const redirectUrl = `${window.location.origin}/products#share-${productId}`;
@@ -141,8 +144,11 @@ const Products = () => {
         ]);
         showSnackbar("已分享至聊天室");
       } catch (error) {
-        console.error("分享失敗：", error);
-        showSnackbar("分享失敗", "error");
+        console.error("分享失敗：", error.message, error);
+        showSnackbar(
+          "分享失敗：" + (error.message || "請確認您已授權 LIFF"),
+          "error"
+        );
       }
     },
     [navigate, showSnackbar]
