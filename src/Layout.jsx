@@ -13,7 +13,7 @@ import {
   Typography,
   Badge,
 } from "@mui/material";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 import Grid2 from "@mui/material/Grid2"; //新版改Gridv2
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -22,6 +22,7 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import CartModal from "./components/CartModal";
 import { deleteCartItem } from "./api/CustomerAPI";
 import { getCart } from "./api/CustomerAPI";
+import { useAuth } from "./context/AuthContext";
 
 const navItems = [
   { text: "產品", to: "/products" },
@@ -38,18 +39,12 @@ const Layout = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const cartCount = cartItems.length;
-  const [isCustomerLoggedIn, setIsCustomerLoggedIn] = useState(false);
-  const location = useLocation();
+  const { isCustomerLoggedIn, setIsCustomerLoggedIn } = useAuth();
 
   const toggleDrawer = (open) => () => {
     setDrawerOpen(open);
   };
 
-  // 每次路由變化時檢查登入狀態
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsCustomerLoggedIn(!!token);
-  }, [location]);
   // 初始載入時取得購物車資料
   useEffect(() => {
     fetchCart();
@@ -60,11 +55,6 @@ const Layout = ({ children }) => {
       fetchCart();
     }
   }, [cartOpen]);
-  //檢查登入狀態
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsCustomerLoggedIn(!!token);
-  }, []);
 
   const fetchCart = async () => {
     const res = await getCart();
@@ -97,7 +87,6 @@ const Layout = ({ children }) => {
     setIsCustomerLoggedIn(false);
     window.location.href = "/";
   };
-
   return (
     <>
       <Box
@@ -208,7 +197,7 @@ const Layout = ({ children }) => {
                                 textAlign: "center",
                               }}
                             >
-                              <ListItemText primary="登入" />
+                              <ListItemText primary="後台登入" />
                             </ListItemButton>
                           </ListItem>
                           {/* 手機版前台會員登入/登出按鈕 */}
@@ -315,7 +304,7 @@ const Layout = ({ children }) => {
                         },
                       }}
                     >
-                      登入
+                      後台登入
                     </Button>
                     {/* 桌面版前台會員登入/登出按鈕 */}
                     {isCustomerLoggedIn ? (
