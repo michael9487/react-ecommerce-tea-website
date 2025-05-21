@@ -8,7 +8,7 @@ const ProtectedMemberRoute = ({ children }) => {
 
   useEffect(() => {
     if (isAuthChecked && !isCustomerLoggedIn) {
-      navigate("/");
+      navigate("/liff-login");
     }
   }, [isCustomerLoggedIn, isAuthChecked, navigate]);
 
