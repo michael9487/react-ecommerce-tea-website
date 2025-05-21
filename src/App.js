@@ -11,6 +11,7 @@ import ContactUs from "./pages/ContactUs";
 import Login from "./pages/Login";
 import Checkout from "./pages/Checkout";
 import CheckAndPay from "./pages/CheckoutAndPay";
+import LiffLoginPage from "./pages/LiffLoginPage";
 //後台
 import AdminLayout from "./AdminLayout";
 import AdminHome from "./admin/AdminHome";
@@ -72,6 +73,7 @@ function App() {
           <Route path="login" element={<Login />} />
           <Route path="checkout" element={<Checkout />} />
           <Route path="checkout-pay/:orderId" element={<CheckAndPay />} />
+          <Route path="liff-login" element={<LiffLoginPage />} />
         </Route>
         {/* 後台路由*/}
         <Route

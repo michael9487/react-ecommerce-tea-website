@@ -94,7 +94,7 @@ export default function LoginPage() {
                 <LockOutlinedIcon />
               </Avatar>
               <Typography component="h1" variant="h5" fontWeight="bold">
-                登入
+                後台登入
               </Typography>
             </Box>
             <Box component="form" noValidate onSubmit={handleSubmit}>
