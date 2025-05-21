@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box } from "@mui/material";
 
 const MemberPage = () => {
   const navigate = useNavigate();
@@ -20,28 +19,21 @@ const MemberPage = () => {
   }, [navigate]);
 
   return (
-    <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      minHeight="100vh"
-    >
-      <div style={{ padding: "2rem" }}>
-        <h2>會員中心</h2>
-        {profile ? (
-          <>
-            <img
-              src={profile.pictureUrl}
-              alt="頭像"
-              style={{ width: 100, borderRadius: "50%" }}
-            />
-            <p>LINE 名稱：{profile.displayName}</p>
-          </>
-        ) : (
-          <p>載入中...</p>
-        )}
-      </div>
-    </Box>
+    <div style={{ padding: "2rem" }}>
+      <h2>會員中心</h2>
+      {profile ? (
+        <>
+          <img
+            src={profile.pictureUrl}
+            alt="頭像"
+            style={{ width: 100, borderRadius: "50%" }}
+          />
+          <p>LINE 名稱：{profile.displayName}</p>
+        </>
+      ) : (
+        <p>載入中...</p>
+      )}
+    </div>
   );
 };
 
