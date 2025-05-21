@@ -23,7 +23,6 @@ import CartModal from "./components/CartModal";
 import { deleteCartItem } from "./api/CustomerAPI";
 import { getCart } from "./api/CustomerAPI";
 import { useAuth } from "./context/AuthContext";
-import liff from "@line/liff";
 
 const navItems = [
   { text: "產品", to: "/products" },
@@ -85,11 +84,9 @@ const Layout = ({ children }) => {
   };
   //登出
   const handleCustomerLogout = () => {
-    liff.logout(); // 同步 LIFF 端登出
     localStorage.removeItem("app_token");
-    localStorage.removeItem("line_profile");
     setIsCustomerLoggedIn(false);
-    window.location.href = "/liff-login";
+    window.location.href = "/";
   };
 
   if (!isAuthChecked) return null; // ✅ 檢查沒完成前先不顯示
