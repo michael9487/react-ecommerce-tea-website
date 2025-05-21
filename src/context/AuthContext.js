@@ -27,9 +27,13 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem("admin_token");
       }
 
-      // 檢查前台登入（只看 token）
-      const customerToken = localStorage.getItem("token");
-      setIsCustomerLoggedIn(!!customerToken);
+      // 👉 檢查前台 app token 是否存在（你可以自己擴充 /verify 或直接用 token 判斷）
+      const appToken = localStorage.getItem("app_token");
+      if (appToken) {
+        setIsCustomerLoggedIn(true);
+      } else {
+        setIsCustomerLoggedIn(false);
+      }
     };
 
     verifyLogin();

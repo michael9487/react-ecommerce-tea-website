@@ -83,7 +83,7 @@ const Layout = ({ children }) => {
   };
   //登出
   const handleCustomerLogout = () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem("app_token");
     setIsCustomerLoggedIn(false);
     window.location.href = "/";
   };
