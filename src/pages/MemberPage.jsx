@@ -27,7 +27,7 @@ const MemberPage = () => {
       minHeight="100vh"
     >
       <div style={{ padding: "2rem" }}>
-        <h2>會員中心</h2>
+        <h2>會員</h2>
         {profile ? (
           <>
             <img
@@ -35,7 +35,7 @@ const MemberPage = () => {
               alt="頭像"
               style={{ width: 100, borderRadius: "50%" }}
             />
-            <p>LINE 名稱：{profile.displayName}</p>
+            <p>{profile.displayName}</p>
           </>
         ) : (
           <p>載入中...</p>

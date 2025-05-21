@@ -13,14 +13,13 @@ import {
   Typography,
   Badge,
 } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import Grid2 from "@mui/material/Grid2"; //新版改Gridv2
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import MenuIcon from "@mui/icons-material/Menu";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import CartModal from "./components/CartModal";
-import { Outlet } from "react-router-dom";
 import { deleteCartItem } from "./api/CustomerAPI";
 import { getCart } from "./api/CustomerAPI";
 
@@ -40,11 +39,17 @@ const Layout = ({ children }) => {
   const [totalPrice, setTotalPrice] = useState(0);
   const cartCount = cartItems.length;
   const [isCustomerLoggedIn, setIsCustomerLoggedIn] = useState(false);
+  const location = useLocation();
 
   const toggleDrawer = (open) => () => {
     setDrawerOpen(open);
   };
 
+  // 每次路由變化時檢查登入狀態
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsCustomerLoggedIn(!!token);
+  }, [location]);
   // 初始載入時取得購物車資料
   useEffect(() => {
     fetchCart();
