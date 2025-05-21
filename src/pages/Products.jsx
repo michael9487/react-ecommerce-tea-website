@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import {
   Card,
@@ -17,7 +17,7 @@ import {
 import Grid2 from "@mui/material/Grid2";
 import ProductModal from "../components/ProductModal";
 import { addToCart } from "../api/CustomerAPI";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, useNavigate } from "react-router-dom";
 
 const apiPath = "https://vue-course-api.hexschool.io";
 const customPath = "supercurry";
@@ -38,9 +38,9 @@ const Products = () => {
     severity: "success",
   });
 
-  const showSnackbar = (message, severity = "success") => {
+  const showSnackbar = useCallback((message, severity = "success") => {
     setSnackbar({ open: true, message, severity });
-  };
+  }, []);
 
   const handleCloseSnackbar = () => {
     setSnackbar((prev) => ({ ...prev, open: false }));
@@ -118,6 +118,46 @@ const Products = () => {
     </Grid2>
   );
 
+  //分享後導回
+  const navigate = useNavigate();
+
+  const handleShareProduct = useCallback(
+    async (productId, productTitle) => {
+      const appToken = localStorage.getItem("app_token");
+
+      if (!window.liff || !window.liff.isLoggedIn() || !appToken) {
+        const redirectUrl = `${window.location.origin}/products#share-${productId}`;
+        localStorage.setItem("afterLoginRedirect", redirectUrl);
+        navigate("/liff-login");
+        return;
+      }
+
+      try {
+        await window.liff.shareTargetPicker([
+          {
+            type: "text",
+            text: `📦 我在 LINE 商城看到這個產品：「${productTitle}」\n👉 點我看看：https://react-ecommerce-tea-website.vercel.app//products/${productId}`,
+          },
+        ]);
+        showSnackbar("已分享至聊天室");
+      } catch (error) {
+        console.error("分享失敗：", error);
+        showSnackbar("分享失敗", "error");
+      }
+    },
+    [navigate, showSnackbar]
+  );
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash.startsWith("#share-")) {
+      const productId = hash.replace("#share-", "");
+      const product = products.find((p) => p.id === productId);
+      if (product) {
+        handleShareProduct(product.id, product.title);
+        window.location.hash = ""; // 清掉 hash，避免重複分享
+      }
+    }
+  }, [products, handleShareProduct]);
   return (
     <Box sx={{ backgroundColor: "#C0C0C0" }}>
       <Container sx={{ py: 4 }}>
@@ -189,25 +229,44 @@ const Products = () => {
                         </Typography>
                       </Grid2>
                       <Divider sx={{ my: 1 }} />
-                      <Grid2 container justifyContent="space-between">
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          onClick={() => {
-                            setSelectedProduct(product);
-                            setOpen(true);
-                          }}
-                        >
-                          查看更多
-                        </Button>
-                        <Button
-                          size="small"
-                          variant="contained"
-                          color="secondary"
-                          onClick={() => handleAddToCart(product, 1)}
-                        >
-                          加入購物車
-                        </Button>
+                      <Grid2 container spacing={1} sx={{ mt: 1 }}>
+                        <Grid2 size={{ xs: 4 }}>
+                          <Button
+                            fullWidth
+                            size="small"
+                            variant="outlined"
+                            onClick={() => {
+                              setSelectedProduct(product);
+                              setOpen(true);
+                            }}
+                          >
+                            查看更多
+                          </Button>
+                        </Grid2>
+                        <Grid2 size={{ xs: 4 }}>
+                          <Button
+                            fullWidth
+                            size="small"
+                            variant="contained"
+                            color="success"
+                            onClick={() =>
+                              handleShareProduct(product.id, product.title)
+                            }
+                          >
+                            分享至聊天室
+                          </Button>
+                        </Grid2>
+                        <Grid2 size={{ xs: 4 }}>
+                          <Button
+                            fullWidth
+                            size="small"
+                            variant="contained"
+                            color="secondary"
+                            onClick={() => handleAddToCart(product, 1)}
+                          >
+                            加入購物車
+                          </Button>
+                        </Grid2>
                       </Grid2>
                     </CardContent>
                   </Card>
