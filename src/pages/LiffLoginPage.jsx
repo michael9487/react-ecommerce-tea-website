@@ -41,7 +41,7 @@ const LiffLoginPage = () => {
     };
 
     loginWithLine();
-  }, [navigate]);
+  }, [navigate, setIsCustomerLoggedIn]);
   return (
     <div style={{ padding: "2rem" }}>
       <p>正在登入中，請稍候...</p>
