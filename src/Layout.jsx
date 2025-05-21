@@ -39,7 +39,8 @@ const Layout = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const cartCount = cartItems.length;
-  const { isCustomerLoggedIn, setIsCustomerLoggedIn } = useAuth();
+  const { isCustomerLoggedIn, isAuthChecked, setIsCustomerLoggedIn } =
+    useAuth();
 
   const toggleDrawer = (open) => () => {
     setDrawerOpen(open);
@@ -85,8 +86,10 @@ const Layout = ({ children }) => {
   const handleCustomerLogout = () => {
     localStorage.removeItem("app_token");
     setIsCustomerLoggedIn(false);
-    window.location.href = "/";
+    window.location.href = "/liff-login";
   };
+
+  if (!isAuthChecked) return null; // ✅ 檢查沒完成前先不顯示
   return (
     <>
       <Box

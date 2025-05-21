@@ -9,6 +9,7 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // 後台登入狀態
   const [isCustomerLoggedIn, setIsCustomerLoggedIn] = useState(false); // 前台登入狀態
+  const [isAuthChecked, setIsAuthChecked] = useState(false);
 
   // 頁面載入時檢查後台 & 前台登入狀態
   useEffect(() => {
@@ -27,13 +28,17 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem("admin_token");
       }
 
-      // 👉 檢查前台 app token 是否存在（你可以自己擴充 /verify 或直接用 token 判斷）
-      const appToken = localStorage.getItem("app_token");
-      if (appToken) {
-        setIsCustomerLoggedIn(true);
-      } else {
-        setIsCustomerLoggedIn(false);
-      }
+      // 檢查前台 app token 是否存在
+      const checkCustomerLogin = () => {
+        const token = localStorage.getItem("app_token");
+        if (token) {
+          setIsCustomerLoggedIn(true);
+        } else {
+          setIsCustomerLoggedIn(false);
+        }
+        setIsAuthChecked(true);
+      };
+      checkCustomerLogin();
     };
 
     verifyLogin();
@@ -46,6 +51,7 @@ export const AuthProvider = ({ children }) => {
         setIsLoggedIn,
         isCustomerLoggedIn,
         setIsCustomerLoggedIn,
+        isAuthChecked,
       }}
     >
       {children}

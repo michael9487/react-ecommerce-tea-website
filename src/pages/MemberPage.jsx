@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box } from "@mui/material";
+import { Box, Typography, Avatar, CircularProgress } from "@mui/material";
+
 import { useAuth } from "../context/AuthContext";
 
 const MemberPage = () => {
@@ -31,22 +32,34 @@ const MemberPage = () => {
       justifyContent="center"
       alignItems="center"
       minHeight="100vh"
+      bgcolor="#f9f9f9"
     >
-      <div style={{ padding: "2rem" }}>
-        <h2>會員中心</h2>
+      <Box
+        p={4}
+        borderRadius={4}
+        boxShadow={3}
+        bgcolor="#fff"
+        textAlign="center"
+        maxWidth={400}
+        width="100%"
+      >
+        <Typography variant="h4" gutterBottom>
+          會員中心
+        </Typography>
+
         {profile ? (
           <>
-            <img
+            <Avatar
               src={profile.pictureUrl}
               alt="頭像"
-              style={{ width: 200, borderRadius: "50%" }}
+              sx={{ width: 120, height: 120, margin: "0 auto", mb: 2 }}
             />
-            <p>{profile.displayName}</p>
+            <Typography variant="h6">{profile.displayName}</Typography>
           </>
         ) : (
-          <p>載入中...</p>
+          <CircularProgress />
         )}
-      </div>
+      </Box>
     </Box>
   );
 };
