@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, Typography, Avatar, CircularProgress } from "@mui/material";
-
 import { useAuth } from "../context/AuthContext";
 
 const MemberPage = () => {
@@ -40,9 +39,8 @@ const MemberPage = () => {
         boxShadow={3}
         bgcolor="#fff"
         textAlign="center"
-        width={{ xs: "90%", sm: "70%", md: "50%" }} // 響應式寬度
-        maxWidth={800} // 最大寬度
-        height={{ xs: 300, sm: 400, md: 500 }}
+        maxWidth={400}
+        width="100%"
       >
         <Typography variant="h4" gutterBottom>
           會員中心

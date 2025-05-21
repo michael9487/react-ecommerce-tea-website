@@ -37,7 +37,11 @@ const LiffLoginPage = () => {
         // 加入導回邏輯
         const redirectPath = localStorage.getItem("afterLoginRedirect");
         localStorage.removeItem("afterLoginRedirect");
-        navigate(redirectPath || "/member");
+        if (redirectPath && redirectPath.startsWith("http")) {
+          window.location.href = redirectPath;
+        } else {
+          navigate(redirectPath || "/member");
+        }
       } catch (error) {
         console.error("登入失敗:", error);
       }
