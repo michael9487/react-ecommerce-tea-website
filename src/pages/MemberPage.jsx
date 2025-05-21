@@ -40,8 +40,8 @@ const MemberPage = () => {
         boxShadow={3}
         bgcolor="#fff"
         textAlign="center"
-        maxWidth={400}
-        width="100%"
+        width={{ xs: "90%", sm: "70%", md: "50%" }} // 響應式寬度
+        maxWidth={800} // 最大寬度
       >
         <Typography variant="h4" gutterBottom>
           會員中心

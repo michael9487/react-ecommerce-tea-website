@@ -118,12 +118,12 @@ const Products = () => {
     </Grid2>
   );
 
-  //分享後導回
   const navigate = useNavigate();
 
   const handleShareProduct = useCallback(
     async (productId, productTitle) => {
       const appToken = localStorage.getItem("app_token");
+
       if (!window.liff) {
         console.log("LIFF 尚未初始化");
       }
@@ -139,7 +139,7 @@ const Products = () => {
         await window.liff.shareTargetPicker([
           {
             type: "text",
-            text: `📦 我在 LINE 商城看到這個產品：「${productTitle}」\n👉 點我看看：https://react-ecommerce-tea-website.vercel.app//products/${productId}`,
+            text: `📦 我在 LINE 商城看到這個產品：「${productTitle}」\n👉 點我看看：https://react-ecommerce-tea-website.vercel.app/products#product-${productId}`,
           },
         ]);
         showSnackbar("已分享至聊天室");
@@ -153,6 +153,7 @@ const Products = () => {
     },
     [navigate, showSnackbar]
   );
+
   useEffect(() => {
     const hash = window.location.hash;
     if (hash.startsWith("#share-")) {
@@ -160,10 +161,23 @@ const Products = () => {
       const product = products.find((p) => p.id === productId);
       if (product) {
         handleShareProduct(product.id, product.title);
-        window.location.hash = ""; // 清掉 hash，避免重複分享
+        window.location.hash = "";
       }
     }
   }, [products, handleShareProduct]);
+
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash && hash.startsWith("#product-")) {
+      setTimeout(() => {
+        const el = document.querySelector(hash);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 300);
+    }
+  }, []);
+
   return (
     <Box sx={{ backgroundColor: "#C0C0C0" }}>
       <Container sx={{ py: 4 }}>
@@ -177,7 +191,11 @@ const Products = () => {
           <>
             <Grid2 container spacing={3}>
               {products.map((product) => (
-                <Grid2 size={{ xs: 12, sm: 6, md: 4 }} key={product.id}>
+                <Grid2
+                  size={{ xs: 12, sm: 6, md: 4 }}
+                  key={product.id}
+                  id={`product-${product.id}`} // ✅ 每個商品加上 id
+                >
                   <Card>
                     <CardMedia
                       component="img"
