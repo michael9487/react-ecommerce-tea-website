@@ -13,6 +13,7 @@ import Checkout from "./pages/Checkout";
 import CheckAndPay from "./pages/CheckoutAndPay";
 import LiffLoginPage from "./pages/LiffLoginPage";
 import MemberPage from "./pages/MemberPage";
+import ProtectedMemberRoute from "./components/ProtectedMemberRoute";
 //後台
 import AdminLayout from "./AdminLayout";
 import AdminHome from "./admin/AdminHome";
@@ -72,10 +73,32 @@ function App() {
           <Route path="about-us" element={<AboutUs />} />
           <Route path="contact-us" element={<ContactUs />} />
           <Route path="login" element={<Login />} />
-          <Route path="checkout" element={<Checkout />} />
-          <Route path="checkout-pay/:orderId" element={<CheckAndPay />} />
+
+          <Route
+            path="/checkout"
+            element={
+              <ProtectedMemberRoute>
+                <Checkout />
+              </ProtectedMemberRoute>
+            }
+          />
+          <Route
+            path="checkout-pay/:orderId"
+            element={
+              <ProtectedMemberRoute>
+                <CheckAndPay />
+              </ProtectedMemberRoute>
+            }
+          />
           <Route path="liff-login" element={<LiffLoginPage />} />
-          <Route path="member" element={<MemberPage />} />
+          <Route
+            path="member"
+            element={
+              <ProtectedMemberRoute>
+                <MemberPage />
+              </ProtectedMemberRoute>
+            }
+          />
         </Route>
         {/* 後台路由*/}
         <Route
