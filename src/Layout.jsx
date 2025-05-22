@@ -23,6 +23,7 @@ import CartModal from "./components/CartModal";
 import { deleteCartItem } from "./api/CustomerAPI";
 import { getCart } from "./api/CustomerAPI";
 import { useAuth } from "./context/AuthContext";
+import { useLocation } from "react-router-dom";
 
 const navItems = [
   { text: "產品", to: "/products" },
@@ -46,6 +47,11 @@ const Layout = ({ children }) => {
     setDrawerOpen(open);
   };
 
+  const location = useLocation();
+  // 每當路由變更時滾動到最上方
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [location.pathname]);
   // 初始載入時取得購物車資料
   useEffect(() => {
     fetchCart();
