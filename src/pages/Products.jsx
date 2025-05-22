@@ -70,6 +70,16 @@ const Products = () => {
     }
   };
 
+  const navigate = useNavigate();
+
+  // === 這裡是重點：一進來就檢查登入狀態 ===
+  useEffect(() => {
+    const appToken = localStorage.getItem("app_token");
+    if (!appToken) {
+      navigate("/liff-login");
+    }
+  }, [navigate]);
+
   useEffect(() => {
     sessionStorage.removeItem("alreadyShared");
   }, []);
@@ -78,7 +88,7 @@ const Products = () => {
     fetchProducts(page);
   }, [page]);
 
-  // ====== 這裡是重點：LIFF 初始化 ======
+  // LIFF 初始化
   useEffect(() => {
     const initLiff = async () => {
       if (!window.liff) {
@@ -95,8 +105,6 @@ const Products = () => {
     };
     initLiff();
   }, []);
-
-  const navigate = useNavigate();
 
   const handleAddToCart = async (product, quantity) => {
     if (!quantity || quantity <= 0) {
@@ -145,7 +153,7 @@ const Products = () => {
     </Grid2>
   );
 
-  // 1. handleShareProduct：未登入時導向 /liff-login?redirect=...
+  // 分享功能
   const handleShareProduct = useCallback(
     async (productId, productTitle) => {
       const appToken = localStorage.getItem("app_token");
@@ -156,8 +164,7 @@ const Products = () => {
       }
 
       if (!window.liff.isLoggedIn() || !appToken) {
-        const redirectUrl = `/products#share-${productId}`;
-        navigate(`/liff-login?redirect=${encodeURIComponent(redirectUrl)}`);
+        // 這裡其實用不到，因為未登入已經會被上面的 useEffect 擋掉
         return;
       }
 
@@ -177,27 +184,25 @@ const Products = () => {
         );
       }
     },
-    [navigate, showSnackbar, liffReady]
+    [showSnackbar, liffReady]
   );
 
-  // 2. 自動分享 useEffect：分享後網址跳回純 /products
+  // 自動分享 useEffect
   useEffect(() => {
     const hash = window.location.hash;
     const alreadyShared = sessionStorage.getItem("alreadyShared");
-    const appToken = localStorage.getItem("app_token");
 
-    if (hash.startsWith("#share-") && !alreadyShared && appToken && liffReady) {
+    if (hash.startsWith("#share-") && !alreadyShared) {
       const productId = hash.replace("#share-", "");
       const product = products.find((p) => p.id === productId);
 
       if (product) {
-        handleShareProduct(product.id, product.title).finally(() => {
-          window.location.replace("/products");
-          sessionStorage.setItem("alreadyShared", "true");
-        });
+        handleShareProduct(product.id, product.title);
+        window.location.hash = "";
+        sessionStorage.setItem("alreadyShared", "true");
       }
     }
-  }, [products, handleShareProduct, liffReady]);
+  }, [products, handleShareProduct]);
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -206,7 +211,6 @@ const Products = () => {
         const el = document.querySelector(hash);
         if (el) {
           el.scrollIntoView({ behavior: "smooth", block: "start" });
-          // 清除 hash，避免重複滾動
           window.history.replaceState(null, "", window.location.pathname);
         }
       }, 100);
