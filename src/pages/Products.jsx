@@ -66,6 +66,10 @@ const Products = () => {
       setLoading(false);
     }
   };
+  // 在每次進入這個頁面時清除分享狀態（可加在 useEffect 頂部）
+  useEffect(() => {
+    sessionStorage.removeItem("alreadyShared");
+  }, []);
 
   useEffect(() => {
     fetchProducts(page);
@@ -153,15 +157,18 @@ const Products = () => {
     },
     [navigate, showSnackbar]
   );
-
   useEffect(() => {
     const hash = window.location.hash;
-    if (hash.startsWith("#share-")) {
+    const alreadyShared = sessionStorage.getItem("alreadyShared");
+
+    if (hash.startsWith("#share-") && !alreadyShared) {
       const productId = hash.replace("#share-", "");
       const product = products.find((p) => p.id === productId);
+
       if (product) {
         handleShareProduct(product.id, product.title);
-        window.location.hash = "";
+        window.location.hash = ""; // 清掉 hash 避免重複觸發
+        sessionStorage.setItem("alreadyShared", "true"); // 記錄已分享
       }
     }
   }, [products, handleShareProduct]);

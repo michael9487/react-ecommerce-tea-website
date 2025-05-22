@@ -13,16 +13,15 @@ const LiffLoginPage = () => {
       try {
         await liff.init({ liffId: "2007351182-5y4kv6bg" });
 
-        // 如果還沒登入，就先導去 LINE 登入頁
         if (!liff.isLoggedIn()) {
+          // 導去 LINE 登入，回來會自動執行以下邏輯
           liff.login({ redirectUri: window.location.href });
           return;
         }
 
-        // 登入成功後回來才會執行以下邏輯
         const idToken = liff.getIDToken();
-
         const profile = await liff.getProfile();
+
         localStorage.setItem("line_profile", JSON.stringify(profile));
 
         const res = await axios.post(
@@ -34,11 +33,14 @@ const LiffLoginPage = () => {
         setIsCustomerLoggedIn(true);
         console.log("登入成功", res.data);
 
-        // 加入導回邏輯
         const redirectPath = localStorage.getItem("afterLoginRedirect");
         localStorage.removeItem("afterLoginRedirect");
+
         if (redirectPath && redirectPath.startsWith("http")) {
-          window.location.href = redirectPath;
+          // 用原生跳轉保留 hash，避免 useNavigate 導致 hash 消失
+          setTimeout(() => {
+            window.location.href = redirectPath;
+          }, 100);
         } else {
           navigate(redirectPath || "/member");
         }
