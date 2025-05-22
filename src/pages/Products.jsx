@@ -67,7 +67,7 @@ const Products = () => {
     }
   };
 
-  // 在每次進入這個頁面時清除分享狀態
+  // 進入頁面時清除已分享狀態
   useEffect(() => {
     sessionStorage.removeItem("alreadyShared");
   }, []);
@@ -125,15 +125,16 @@ const Products = () => {
 
   const navigate = useNavigate();
 
+  // 1. handleShareProduct：未登入時導向 /liff-login?redirect=...
   const handleShareProduct = useCallback(
     async (productId, productTitle) => {
       const appToken = localStorage.getItem("app_token");
 
       if (!window.liff) {
         console.log("LIFF 尚未初始化");
+        return;
       }
 
-      // 修正：用 query string 傳遞 redirect，且只用相對路徑
       if (!window.liff || !window.liff.isLoggedIn() || !appToken) {
         const redirectUrl = `/products#share-${productId}`;
         navigate(`/liff-login?redirect=${encodeURIComponent(redirectUrl)}`);
@@ -159,7 +160,7 @@ const Products = () => {
     [navigate, showSnackbar]
   );
 
-  // 修正：只有已登入才會自動觸發 hash 分享
+  // 2. 自動分享 useEffect：分享後網址跳回純 /products
   useEffect(() => {
     const hash = window.location.hash;
     const alreadyShared = sessionStorage.getItem("alreadyShared");
@@ -170,9 +171,10 @@ const Products = () => {
       const product = products.find((p) => p.id === productId);
 
       if (product) {
-        handleShareProduct(product.id, product.title);
-        window.location.hash = ""; // 清掉 hash 避免重複觸發
-        sessionStorage.setItem("alreadyShared", "true"); // 記錄已分享
+        handleShareProduct(product.id, product.title).finally(() => {
+          window.location.replace("/products");
+          sessionStorage.setItem("alreadyShared", "true");
+        });
       }
     }
   }, [products, handleShareProduct]);
