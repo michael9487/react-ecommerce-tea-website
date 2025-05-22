@@ -1,58 +1,59 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import liff from "@line/liff";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const LiffLoginPage = () => {
   const navigate = useNavigate();
+  const { setIsCustomerLoggedIn } = useAuth();
 
   useEffect(() => {
-    const initLiff = async () => {
+    const loginWithLine = async () => {
       try {
-        await liff.init({ liffId: "你的 LIFF ID" });
+        await liff.init({ liffId: "2007351182-5y4kv6bg" });
 
+        // 如果還沒登入，就先導去 LINE 登入頁
         if (!liff.isLoggedIn()) {
-          liff.login();
+          liff.login({ redirectUri: window.location.href });
           return;
         }
 
-        const profile = await liff.getProfile();
+        // 登入成功後回來才會執行以下邏輯
         const idToken = liff.getIDToken();
 
-        const res = await axios.post("你的後端登入 API，例如 /api/liff-login", {
-          idToken,
-        });
+        const profile = await liff.getProfile();
+        localStorage.setItem("line_profile", JSON.stringify(profile));
 
-        if (res.data.success) {
-          localStorage.setItem("app_token", res.data.token);
-          localStorage.setItem("uid", res.data.uid);
+        const res = await axios.post(
+          `${process.env.REACT_APP_API_URL}/liff-login`,
+          { idToken }
+        );
 
-          const redirectUrl = localStorage.getItem("afterLoginRedirect") || "/";
-          localStorage.removeItem("afterLoginRedirect");
+        localStorage.setItem("app_token", res.data.token);
+        setIsCustomerLoggedIn(true);
+        console.log("登入成功", res.data);
 
-          // 若登入前欲分享商品，導回 /products，自動觸發分享邏輯
-          const waitingToShare = sessionStorage.getItem("waitingToShare");
-          if (waitingToShare) {
-            navigate("/products");
-          } else {
-            navigate(redirectUrl);
-          }
+        // 加入導回邏輯
+        const redirectPath = localStorage.getItem("afterLoginRedirect");
+        localStorage.removeItem("afterLoginRedirect");
+        if (redirectPath && redirectPath.startsWith("http")) {
+          window.location.href = redirectPath;
         } else {
-          alert("登入失敗：" + (res.data.message || "未知錯誤"));
-          navigate("/");
+          navigate(redirectPath || "/member");
         }
       } catch (error) {
-        console.error("LIFF 初始化或登入失敗", error);
-        alert("LIFF 登入失敗，請稍後再試");
-        navigate("/");
+        console.error("登入失敗:", error);
       }
     };
 
-    initLiff();
-  }, [navigate]);
+    loginWithLine();
+  }, [navigate, setIsCustomerLoggedIn]);
 
   return (
-    <p style={{ padding: "2rem", textAlign: "center" }}>登入中，請稍候...</p>
+    <div style={{ padding: "2rem" }}>
+      <p>正在登入中，請稍候...</p>
+    </div>
   );
 };
 
