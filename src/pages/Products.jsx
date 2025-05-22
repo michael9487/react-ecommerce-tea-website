@@ -91,6 +91,70 @@ const Products = () => {
     }
   };
 
+  const navigate = useNavigate();
+
+  const handleShareProduct = useCallback(
+    async (productId, productTitle) => {
+      const appToken = localStorage.getItem("app_token");
+
+      if (!window.liff || !window.liff.isLoggedIn() || !appToken) {
+        const redirectUrl = `${window.location.origin}/products`;
+        sessionStorage.setItem("waitingToShare", productId);
+        localStorage.setItem("afterLoginRedirect", redirectUrl);
+        navigate("/liff-login");
+        return;
+      }
+
+      try {
+        await window.liff.shareTargetPicker([
+          {
+            type: "text",
+            text: `📦 我在 LINE 商城看到這個產品：「${productTitle}」\n👉 點我看看：https://react-ecommerce-tea-website.vercel.app/products#product-${productId}`,
+          },
+        ]);
+        showSnackbar("已分享至聊天室");
+      } catch (error) {
+        console.error("分享失敗：", error.message, error);
+        showSnackbar(
+          "分享失敗：" + (error.message || "請確認您已授權 LIFF"),
+          "error"
+        );
+      }
+    },
+    [navigate, showSnackbar]
+  );
+
+  // 🔁 登入後自動觸發分享
+  useEffect(() => {
+    const waitingToShare = sessionStorage.getItem("waitingToShare");
+
+    if (products.length > 0 && waitingToShare) {
+      const product = products.find(
+        (p) => p.id === waitingToShare || p.id === Number(waitingToShare)
+      );
+
+      if (product && window.liff && window.liff.isLoggedIn()) {
+        window.liff.ready.then(() => {
+          handleShareProduct(product.id, product.title);
+          sessionStorage.removeItem("waitingToShare");
+        });
+      }
+    }
+  }, [products, handleShareProduct]);
+
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (products.length > 0 && hash.startsWith("#product-")) {
+      setTimeout(() => {
+        const el = document.querySelector(hash);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+          window.history.replaceState(null, "", window.location.pathname);
+        }
+      }, 100);
+    }
+  }, [products]);
+
   const renderSkeletonCards = () => (
     <Grid2 container spacing={2}>
       {[...Array(6)].map((_, i) => (
@@ -121,65 +185,6 @@ const Products = () => {
       ))}
     </Grid2>
   );
-
-  const navigate = useNavigate();
-
-  const handleShareProduct = useCallback(
-    async (productId, productTitle) => {
-      const appToken = localStorage.getItem("app_token");
-
-      if (!window.liff || !window.liff.isLoggedIn() || !appToken) {
-        const redirectUrl = `${window.location.origin}/products`;
-        localStorage.setItem("afterLoginRedirect", redirectUrl);
-        sessionStorage.setItem("waitingToShare", productId);
-        navigate("/liff-login");
-        return;
-      }
-
-      try {
-        await window.liff.shareTargetPicker([
-          {
-            type: "text",
-            text: `📦 我在 LINE 商城看到這個產品：「${productTitle}」\n👉 點我看看：https://react-ecommerce-tea-website.vercel.app/products#product-${productId}`,
-          },
-        ]);
-        showSnackbar("已分享至聊天室");
-      } catch (error) {
-        console.error("分享失敗：", error.message, error);
-        showSnackbar(
-          "分享失敗：" + (error.message || "請確認您已授權 LIFF"),
-          "error"
-        );
-      }
-    },
-    [navigate, showSnackbar]
-  );
-
-  // 登入回來後自動觸發分享
-  useEffect(() => {
-    const waitingToShare = sessionStorage.getItem("waitingToShare");
-
-    if (products.length > 0 && waitingToShare) {
-      const product = products.find((p) => p.id === waitingToShare);
-      if (product) {
-        handleShareProduct(product.id, product.title);
-        sessionStorage.removeItem("waitingToShare");
-      }
-    }
-  }, [products, handleShareProduct]);
-
-  useEffect(() => {
-    const hash = window.location.hash;
-    if (products.length > 0 && hash.startsWith("#product-")) {
-      setTimeout(() => {
-        const el = document.querySelector(hash);
-        if (el) {
-          el.scrollIntoView({ behavior: "smooth", block: "start" });
-          window.history.replaceState(null, "", window.location.pathname);
-        }
-      }, 100);
-    }
-  }, [products]);
 
   return (
     <Box sx={{ backgroundColor: "#C0C0C0" }}>
