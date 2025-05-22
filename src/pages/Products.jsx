@@ -66,7 +66,7 @@ const Products = () => {
       setLoading(false);
     }
   };
-
+  // 在每次進入這個頁面時清除分享狀態（可加在 useEffect 頂部）
   useEffect(() => {
     sessionStorage.removeItem("alreadyShared");
   }, []);
@@ -128,10 +128,13 @@ const Products = () => {
     async (productId, productTitle) => {
       const appToken = localStorage.getItem("app_token");
 
+      if (!window.liff) {
+        console.log("LIFF 尚未初始化");
+      }
+
       if (!window.liff || !window.liff.isLoggedIn() || !appToken) {
-        const redirectUrl = `${window.location.origin}/products`;
+        const redirectUrl = `${window.location.origin}/products#share-${productId}`;
         localStorage.setItem("afterLoginRedirect", redirectUrl);
-        sessionStorage.setItem("waitingToShare", productId);
         navigate("/liff-login");
         return;
       }
@@ -154,16 +157,18 @@ const Products = () => {
     },
     [navigate, showSnackbar]
   );
-
-  // 登入回來後自動觸發分享
   useEffect(() => {
-    const waitingToShare = sessionStorage.getItem("waitingToShare");
+    const hash = window.location.hash;
+    const alreadyShared = sessionStorage.getItem("alreadyShared");
 
-    if (products.length > 0 && waitingToShare) {
-      const product = products.find((p) => p.id === waitingToShare);
+    if (hash.startsWith("#share-") && !alreadyShared) {
+      const productId = hash.replace("#share-", "");
+      const product = products.find((p) => p.id === productId);
+
       if (product) {
         handleShareProduct(product.id, product.title);
-        sessionStorage.removeItem("waitingToShare");
+        window.location.hash = ""; // 清掉 hash 避免重複觸發
+        sessionStorage.setItem("alreadyShared", "true"); // 記錄已分享
       }
     }
   }, [products, handleShareProduct]);
@@ -175,6 +180,7 @@ const Products = () => {
         const el = document.querySelector(hash);
         if (el) {
           el.scrollIntoView({ behavior: "smooth", block: "start" });
+          // 清除 hash，避免重複滾動
           window.history.replaceState(null, "", window.location.pathname);
         }
       }, 100);
@@ -197,7 +203,7 @@ const Products = () => {
                 <Grid2
                   size={{ xs: 12, sm: 6, md: 4 }}
                   key={product.id}
-                  id={`product-${product.id}`}
+                  id={`product-${product.id}`} // ✅ 每個商品加上 id
                 >
                   <Card>
                     <CardMedia
