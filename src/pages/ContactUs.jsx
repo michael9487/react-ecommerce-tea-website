@@ -99,13 +99,21 @@ export default function ContactUs() {
             </Stack>
           </Stack>
           {/* Google 地圖 */}
-          <Paper elevation={2} sx={{ mb: 3, width: "50%", mx: "auto" }}>
+          <Paper
+            elevation={2}
+            sx={{
+              mb: 3,
+              width: "100%",
+              maxWidth: 600,
+              mx: "auto",
+            }}
+          >
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m16!1m12!1m3!1d3613.244166270442!2d121.52362207595775!3d25.09359483588817!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!2m1!1z5aOr5p6X5o236YGL56uZ!5e0!3m2!1szh-TW!2stw!4v1747013461926!5m2!1szh-TW!2stw"
+              src="https://www.google.com/maps/embed?pb=!1m16!1m12!1m3!1d2148.4387103691524!2d121.52473663854477!3d25.094114478835817!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!2m1!1z5o236YGL5aOr5p6X56uZ!5e0!3m2!1szh-TW!2stw!4v1747887054078!5m2!1szh-TW!2stw"
               width="100%"
               height="450"
               style={{ border: 0 }}
-              allowFullScreen=""
+              allowFullScreen
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               title="google-map"
