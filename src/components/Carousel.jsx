@@ -102,7 +102,7 @@ function Carousel() {
                       position: "absolute",
                       bottom: 0,
                       left: 0,
-                      width: "20%",
+                      width: { xs: "100%", md: "20%" },
                       height: "100%",
                       bgcolor: "rgba(0, 0, 0, 0.3)",
                       display: "flex",
@@ -112,7 +112,7 @@ function Carousel() {
                       color: "#fff",
                       p: 4,
                       maxWidth: { xs: "90%", md: "40%" },
-                      paddingLeft: "80px", // 文字往右移
+                      paddingLeft: { xs: 4, md: "80px" },
                     }}
                   >
                     <Typography
