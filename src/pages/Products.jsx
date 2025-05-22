@@ -78,7 +78,7 @@ const Products = () => {
     fetchProducts(page);
   }, [page]);
 
-  // ====== 這裡是重點：LIFF 初始化 ======
+  // LIFF 初始化
   useEffect(() => {
     const initLiff = async () => {
       if (!window.liff) {
@@ -145,7 +145,7 @@ const Products = () => {
     </Grid2>
   );
 
-  // 1. handleShareProduct：未登入時導向 /liff-login?redirect=...
+  // 分享功能
   const handleShareProduct = useCallback(
     async (productId, productTitle) => {
       const appToken = localStorage.getItem("app_token");
@@ -180,7 +180,7 @@ const Products = () => {
     [navigate, showSnackbar, liffReady]
   );
 
-  // 2. 自動分享 useEffect：分享後網址跳回純 /products
+  // 這裡是重點：登入後自動觸發分享且不會無限跳轉
   useEffect(() => {
     const hash = window.location.hash;
     const alreadyShared = sessionStorage.getItem("alreadyShared");
@@ -206,7 +206,6 @@ const Products = () => {
         const el = document.querySelector(hash);
         if (el) {
           el.scrollIntoView({ behavior: "smooth", block: "start" });
-          // 清除 hash，避免重複滾動
           window.history.replaceState(null, "", window.location.pathname);
         }
       }, 100);
