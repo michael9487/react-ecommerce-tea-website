@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
+import liff from "@line/liff";
 import {
   Card,
   CardMedia,
@@ -21,6 +22,7 @@ import { useOutletContext, useNavigate } from "react-router-dom";
 
 const apiPath = "https://vue-course-api.hexschool.io";
 const customPath = "supercurry";
+const liffId = "2007351182-5y4kv6bg"; // 請換成你的 liffId
 
 const Products = () => {
   const { fetchCart } = useOutletContext();
@@ -31,6 +33,7 @@ const Products = () => {
   const [error, setError] = useState("");
   const [open, setOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [liffReady, setLiffReady] = useState(false);
 
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -67,7 +70,6 @@ const Products = () => {
     }
   };
 
-  // 進入頁面時清除已分享狀態
   useEffect(() => {
     sessionStorage.removeItem("alreadyShared");
   }, []);
@@ -75,6 +77,26 @@ const Products = () => {
   useEffect(() => {
     fetchProducts(page);
   }, [page]);
+
+  // ====== 這裡是重點：LIFF 初始化 ======
+  useEffect(() => {
+    const initLiff = async () => {
+      if (!window.liff) {
+        try {
+          await liff.init({ liffId });
+          setLiffReady(true);
+        } catch (e) {
+          setLiffReady(false);
+          console.error("LIFF 初始化失敗", e);
+        }
+      } else {
+        setLiffReady(true);
+      }
+    };
+    initLiff();
+  }, []);
+
+  const navigate = useNavigate();
 
   const handleAddToCart = async (product, quantity) => {
     if (!quantity || quantity <= 0) {
@@ -123,19 +145,17 @@ const Products = () => {
     </Grid2>
   );
 
-  const navigate = useNavigate();
-
   // 1. handleShareProduct：未登入時導向 /liff-login?redirect=...
   const handleShareProduct = useCallback(
     async (productId, productTitle) => {
       const appToken = localStorage.getItem("app_token");
 
-      if (!window.liff) {
-        console.log("LIFF 尚未初始化");
+      if (!window.liff || !liffReady) {
+        showSnackbar("LIFF 尚未初始化", "error");
         return;
       }
 
-      if (!window.liff || !window.liff.isLoggedIn() || !appToken) {
+      if (!window.liff.isLoggedIn() || !appToken) {
         const redirectUrl = `/products#share-${productId}`;
         navigate(`/liff-login?redirect=${encodeURIComponent(redirectUrl)}`);
         return;
@@ -157,7 +177,7 @@ const Products = () => {
         );
       }
     },
-    [navigate, showSnackbar]
+    [navigate, showSnackbar, liffReady]
   );
 
   // 2. 自動分享 useEffect：分享後網址跳回純 /products
@@ -166,7 +186,7 @@ const Products = () => {
     const alreadyShared = sessionStorage.getItem("alreadyShared");
     const appToken = localStorage.getItem("app_token");
 
-    if (hash.startsWith("#share-") && !alreadyShared && appToken) {
+    if (hash.startsWith("#share-") && !alreadyShared && appToken && liffReady) {
       const productId = hash.replace("#share-", "");
       const product = products.find((p) => p.id === productId);
 
@@ -177,7 +197,7 @@ const Products = () => {
         });
       }
     }
-  }, [products, handleShareProduct]);
+  }, [products, handleShareProduct, liffReady]);
 
   useEffect(() => {
     const hash = window.location.hash;
