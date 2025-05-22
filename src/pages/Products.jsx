@@ -66,7 +66,7 @@ const Products = () => {
       setLoading(false);
     }
   };
-  // 在每次進入這個頁面時清除分享狀態（可加在 useEffect 頂部）
+
   useEffect(() => {
     sessionStorage.removeItem("alreadyShared");
   }, []);
@@ -124,6 +124,7 @@ const Products = () => {
 
   const navigate = useNavigate();
 
+  // === 這裡是修正的 handleShareProduct ===
   const handleShareProduct = useCallback(
     async (productId, productTitle) => {
       const appToken = localStorage.getItem("app_token");
@@ -133,9 +134,8 @@ const Products = () => {
       }
 
       if (!window.liff || !window.liff.isLoggedIn() || !appToken) {
-        const redirectUrl = `${window.location.origin}/products#share-${productId}`;
-        localStorage.setItem("afterLoginRedirect", redirectUrl);
-        navigate("/liff-login");
+        const redirectUrl = `/products#share-${productId}`;
+        navigate(`/liff-login?redirect=${encodeURIComponent(redirectUrl)}`);
         return;
       }
 
@@ -157,6 +157,7 @@ const Products = () => {
     },
     [navigate, showSnackbar]
   );
+
   useEffect(() => {
     const hash = window.location.hash;
     const alreadyShared = sessionStorage.getItem("alreadyShared");
@@ -180,7 +181,6 @@ const Products = () => {
         const el = document.querySelector(hash);
         if (el) {
           el.scrollIntoView({ behavior: "smooth", block: "start" });
-          // 清除 hash，避免重複滾動
           window.history.replaceState(null, "", window.location.pathname);
         }
       }, 100);
@@ -203,7 +203,7 @@ const Products = () => {
                 <Grid2
                   size={{ xs: 12, sm: 6, md: 4 }}
                   key={product.id}
-                  id={`product-${product.id}`} // ✅ 每個商品加上 id
+                  id={`product-${product.id}`}
                 >
                   <Card>
                     <CardMedia
