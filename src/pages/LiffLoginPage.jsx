@@ -34,9 +34,10 @@ const LiffLoginPage = () => {
         setIsCustomerLoggedIn(true);
         console.log("登入成功", res.data);
 
-        // 讀取 query string 的 redirect
+        // 讀取 query string 的 redirect 參數
         const params = new URLSearchParams(window.location.search);
         const redirect = params.get("redirect") || "/member";
+        // 導回原本指定的頁面
         window.location.replace(redirect);
       } catch (error) {
         console.error("登入失敗:", error);
