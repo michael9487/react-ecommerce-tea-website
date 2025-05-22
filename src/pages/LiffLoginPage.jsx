@@ -11,17 +11,14 @@ const LiffLoginPage = () => {
   useEffect(() => {
     const loginWithLine = async () => {
       try {
-        await liff.init({ liffId: "2007351182-5y4kv6bg" });
+        await liff.init({ liffId: "你的liffId" });
 
-        // 如果還沒登入，就先導去 LINE 登入頁
         if (!liff.isLoggedIn()) {
           liff.login({ redirectUri: window.location.href });
           return;
         }
 
-        // 登入成功後回來才會執行以下邏輯
         const idToken = liff.getIDToken();
-
         const profile = await liff.getProfile();
         localStorage.setItem("line_profile", JSON.stringify(profile));
 
@@ -32,12 +29,10 @@ const LiffLoginPage = () => {
 
         localStorage.setItem("app_token", res.data.token);
         setIsCustomerLoggedIn(true);
-        console.log("登入成功", res.data);
 
-        // 讀取 query string 的 redirect 參數
+        // 讀取 query string 的 redirect
         const params = new URLSearchParams(window.location.search);
         const redirect = params.get("redirect") || "/member";
-        // 導回原本指定的頁面
         window.location.replace(redirect);
       } catch (error) {
         console.error("登入失敗:", error);

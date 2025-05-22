@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
-import liff from "@line/liff";
 import {
   Card,
   CardMedia,
@@ -22,7 +21,6 @@ import { useOutletContext, useNavigate } from "react-router-dom";
 
 const apiPath = "https://vue-course-api.hexschool.io";
 const customPath = "supercurry";
-const liffId = "2007351182-5y4kv6bg"; // 請換成你的 liffId
 
 const Products = () => {
   const { fetchCart } = useOutletContext();
@@ -33,7 +31,6 @@ const Products = () => {
   const [error, setError] = useState("");
   const [open, setOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [liffReady, setLiffReady] = useState(false);
 
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -77,24 +74,6 @@ const Products = () => {
   useEffect(() => {
     fetchProducts(page);
   }, [page]);
-
-  // LIFF 初始化
-  useEffect(() => {
-    const initLiff = async () => {
-      if (!window.liff) {
-        try {
-          await liff.init({ liffId });
-          setLiffReady(true);
-        } catch (e) {
-          setLiffReady(false);
-          console.error("LIFF 初始化失敗", e);
-        }
-      } else {
-        setLiffReady(true);
-      }
-    };
-    initLiff();
-  }, []);
 
   const navigate = useNavigate();
 
@@ -145,17 +124,12 @@ const Products = () => {
     </Grid2>
   );
 
-  // 分享功能
+  // 重點：未登入時用 query string 傳遞 redirect
   const handleShareProduct = useCallback(
     async (productId, productTitle) => {
       const appToken = localStorage.getItem("app_token");
 
-      if (!window.liff || !liffReady) {
-        showSnackbar("LIFF 尚未初始化", "error");
-        return;
-      }
-
-      if (!window.liff.isLoggedIn() || !appToken) {
+      if (!window.liff || !window.liff.isLoggedIn() || !appToken) {
         const redirectUrl = `/products#share-${productId}`;
         navigate(`/liff-login?redirect=${encodeURIComponent(redirectUrl)}`);
         return;
@@ -177,27 +151,25 @@ const Products = () => {
         );
       }
     },
-    [navigate, showSnackbar, liffReady]
+    [navigate, showSnackbar]
   );
 
-  // 這裡是重點：登入後自動觸發分享且不會無限跳轉
+  // 重點：hash 分享 useEffect
   useEffect(() => {
     const hash = window.location.hash;
     const alreadyShared = sessionStorage.getItem("alreadyShared");
-    const appToken = localStorage.getItem("app_token");
 
-    if (hash.startsWith("#share-") && !alreadyShared && appToken && liffReady) {
+    if (hash.startsWith("#share-") && !alreadyShared) {
       const productId = hash.replace("#share-", "");
       const product = products.find((p) => p.id === productId);
 
       if (product) {
-        handleShareProduct(product.id, product.title).finally(() => {
-          window.location.replace("/products");
-          sessionStorage.setItem("alreadyShared", "true");
-        });
+        handleShareProduct(product.id, product.title);
+        window.location.hash = ""; // 清掉 hash 避免重複觸發
+        sessionStorage.setItem("alreadyShared", "true"); // 記錄已分享
       }
     }
-  }, [products, handleShareProduct, liffReady]);
+  }, [products, handleShareProduct]);
 
   useEffect(() => {
     const hash = window.location.hash;
