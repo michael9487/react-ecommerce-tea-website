@@ -15,6 +15,8 @@ const LiffLoginPage = () => {
           liff.login();
           return;
         }
+
+        const profile = await liff.getProfile();
         const idToken = liff.getIDToken();
 
         const res = await axios.post("你的後端登入 API，例如 /api/liff-login", {
